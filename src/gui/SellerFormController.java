@@ -4,6 +4,7 @@ import java.net.URL;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -136,12 +137,21 @@ public class SellerFormController implements Initializable {
 		obj.setName(txtName.getText());
 		if (txtEmail.getText() == null || txtEmail.getText().trim().equals("")) {
 			exception.addError("email", "Field can't be empty");
+		} else if(!txtEmail.getText().contains("@"))
+		{
+			exception.addError("email", "Field must be a valid email using @ character");
 		}
 		obj.setEmail(txtEmail.getText());
-
+		
+		Instant now = Instant.now();
+		LocalDate currentlyDate = now.atZone(ZoneId.systemDefault()).toLocalDate();
+		
 		if (dpBirthDate.getValue() == null) {
 			exception.addError("birthDate", "Field can't be empty");
-		} else {
+		} else if(!dpBirthDate.getValue().isBefore(currentlyDate.minusYears(18))) {
+			exception.addError("birthDate", "The seller must be over 18");
+		}
+		else {
 			Instant instant = Instant.from(dpBirthDate.getValue().atStartOfDay(ZoneId.systemDefault()));
 			obj.setBirthDate(Date.from(instant));
 		}
